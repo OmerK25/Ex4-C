@@ -3,12 +3,10 @@
 #ifndef Node
 #define Node
 
-#ifndef Trie
-#define Trie
 
-typedef enum {FALSE=0, TRUE=1} boolean; 
+typedef enum {NO=0, YES=1} boolean; 
 
-typedef struct node { 
+typedef struct node{ 
   
    char letter; 
    long unsigned int count; 
@@ -19,7 +17,9 @@ typedef struct node {
 } node; 
 #endif
 
-typedef struct trie {
+#ifndef Trie
+#define Trie
+typedef struct trie{
    
    node* children[NUM_LETTERS];
    node* curr;
@@ -32,7 +32,7 @@ typedef struct trie {
 
 //used in main
 void freeTrie(trie* t);
-trie* readText();
+trie* insertText();
 void printTrie(trie* root);
 void printTrieReverse(trie* root);
 
@@ -40,16 +40,13 @@ void printTrieReverse(trie* root);
 void mallocErr(void);
 void maloccErrWord(trie* root);
 node* newNode(char ch);
-void freeNode(node* n)
+void freeNode(node* n);
 trie* newTrie();
-void freeTrie(trie* t);
 int charToIndex(char c);
 void closeWord(trie* root);
 boolean isEmpty(trie* root);
 int insertChar(trie* root, int c);
-trie* insertText();
 void printWords(trie* root);
 void printWordsReverse(trie* root);
-void print_trie(trie* root);
-void prinTrieReverse(trie* root);
-void freeTrie(trie* t);
+
+

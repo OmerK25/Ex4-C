@@ -7,13 +7,13 @@
 
 
 //print an error if malloc has a problem.
-void mallocErr(void) {
+void mallocErr(void){
 printf("Memory error has accord, exiting now\n");
 exit(1);
 }
 
 //Crates a new node, and init all his parameters.
-node* newNode(char letter) {
+node* newNode(char letter){
 node* n;
 if (!(n=(node*)malloc(sizeof(node))))
 mallocErr();
@@ -21,8 +21,8 @@ mallocErr();
 int i;
 n->letter = letter;
 n->count = 0;
-n->is_word = NO;
-n->has_kids = NO;
+n->isEndOfWord = NO;
+n->hasChild = NO;
 for (i=0; i<NUM_LETTERS; i++) {
 (n->children)[i] = NULL;
 }
@@ -30,16 +30,17 @@ return n;
 }
 //This method clear the memory of a node and his kids,
 // if he got any.
-void freeNode(node* n) {
+void freeNode(node* n){
 int i;
-if (n==NULL) return;
+if (n==NULL) 
+return;
 
-if (NO==(n->has_kids)) free(n);
-free(n);
-
+if (NO==(n->hasChild)){
+    free(n);
+}
 else {
 for (i=0; i<NUM_LETTERS; i++) {
-free_node((n->children)[i]);
+freeNode((n->children)[i]);
 }
 }
 return;
@@ -55,7 +56,7 @@ trie* newTrie(){
       t->children[i] = NULL;
    }
    t->curr = NULL;
-   t->empty = TRUE;
+   t->empty = YES;
    t->MaxWordLen = 0;
 
    return t;
@@ -78,21 +79,21 @@ boolean isEmpty(trie* root){
 }
 
 //Convert char type to an index number.
-int charToIndex(char c) {
+int charToIndex(char c){
 return c-'a';
 }
 
 //This method checks if a letter is an end of a word and closing it.
-void closeWord(trie* root) {
+void closeWord(trie* root){
 if (root->curr == NULL)
 return;
 root->curr->count++;
-root->curr->is_word = YES;
+root->curr->isEndOfWord = YES;
 root->curr=NULL;
 }
 
 //Insert one char to the Trie.
-int insertChar(trie* root, int c) {
+int insertChar(trie* root, int c){
 int index;
 int word_length=0;
 if(!isalpha(c)) {
@@ -109,7 +110,7 @@ root->curr = root->children[index];
 root->empty=NO;
 } 
 else {
-root->curr->has_kids = YES;
+root->curr->hasChild = YES;
 if (root->curr->children[index] == NULL)
 root->curr->children[index] = newNode(c);
 root->curr=root->curr->children[index];
@@ -118,38 +119,38 @@ return word_length;
 }
 
 //print an error if malloc has a problem.
-void maloccErrWord(trie* root) {
+void maloccErrWord(trie* root){
 free(root->word);
-if (!(root->word=(char*)malloc(1+sizeof(char)*(root->max_word_length))) )
+if (!(root->word=(char*)malloc(1+sizeof(char)*(root->MaxWordLen))) )
 mallocErr();
 }
 
 //Insert some text to the Trie.
-trie* insertText() {
+trie* insertText(){
 trie* root;
 int c;
 int word_length;
 root = newTrie();
-while(c=getchar()!=EOF) {
+while((c=getchar()) != EOF){
 word_length=insertChar(root,c);
-if (word_length>root->max_word_length)
-root->max_word_length=word_length;
+if (word_length>root->MaxWordLen)
+root->MaxWordLen=word_length;
 }
 maloccErrWord(root);
 return root;
 }
 
 //Prints the words of a node.
-void printWords(trie* root) {
+void printWords(trie* root){
 static int p=0;
 int i;
 node* curr;
 root->word[p++]=root->curr->letter;
-if (root->curr->is_word) {
+if (root->curr->isEndOfWord) {
 root->word[p]='\0';
 printf("%s\t%ld\n",root->word,root->curr->count);
 }
-if (root->curr->has_kids) {
+if (root->curr->hasChild) {
 for(i=0; i<NUM_LETTERS; ++i) {
 if (root->curr->children[i] == NULL)
 continue;
@@ -166,13 +167,13 @@ return;
 }
 
 //Print Tthe word in reverse order.
-void printWordsReverse(trie* root) {
+void printWordsReverse(trie* root){
 static int p=0;
 int i;
 node* curr;
 root->word[p++]=root->curr->letter;
-if (root->curr->has_kids) {
-for (i=NUM_LETTERS-1; i>=0; --i) {
+if (root->curr->hasChild) {
+for (i=NUM_LETTERS-1; i>=0; --i){
 if (root->curr->children[i] == NULL)
 continue;
 curr = root->curr; 
@@ -181,14 +182,14 @@ printWordsReverse(root);
 root->curr = curr; 
 }
 } else {
-if (root->curr->is_word) {
+if (root->curr->isEndOfWord){
 root->word[p]='\0';
 printf("%s\t%ld\n",root->word,root->curr->count);
 }
 --p;
 return;
 }
-if (root->curr->is_word) {
+if (root->curr->isEndOfWord){
 root->word[p]='\0';
 printf("%s\t%ld\n",root->word,root->curr->count);
 }
@@ -196,42 +197,31 @@ printf("%s\t%ld\n",root->word,root->curr->count);
 }
 
 //Prints the whole Trie.
-void print_trie(trie* root) {
+void printTrie(trie* root){
 int i;
 if (root == NULL)
 return;
 if (isEmpty(root))
 return;
-for (i=0; i<NUM_LETTERS; ++i) {
+for (i=0; i<NUM_LETTERS; ++i){
 if (root->children[i] == NULL)
 continue;
 root->curr = root->children[i];
-print_words(root);
+printWords(root);
 }
 }
 
 //Prints the whole Trie, in reverse order.
-void prinTrieReverse(trie* root) {
+void printTrieReverse(trie* root){
 int i;
 if (root == NULL)
 return;
 if (isEmpty(root))
 return;
-for (i=NUM_LETTERS-1; i>=0; --i) {
+for (i=NUM_LETTERS-1; i>=0; --i){
 if (root->children[i] == NULL)
 continue;
 root->curr = root->children[i];
-print_words_reverse(root);
+printWordsReverse(root);
 }
-}
-
-//Clears the memory of the Trie.
-void freeTrie(trie* t) {
-int i;
-if (t == NULL)
-return;
-for(i=0;i<NUM_LETTERS; ++i) {
-free_node(t->children[i]);
-}
-free(t);
 }
