@@ -1,10 +1,10 @@
 CC = gcc
 FLAGS = -Wall -g
 
-all: trie
+all: frequency
 
-trie: main.o trie.o
-	$(CC) $(FLAGS) -o trie main.o trie.o
+frequency: main.o trie.o
+	$(CC) $(FLAGS) -o frequency main.o trie.o
 
 main.o: main.c trie.h
 	$(CC) $(FLAGS) -c main.c 
@@ -15,4 +15,4 @@ trie.o: trie.c trie.h
 .PHONY: clean all
 
 clean:
-	rm -f *.o trie
+	rm -f *.o frequency
